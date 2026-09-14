@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/forum_provider.dart';
-import 'home_page.dart';
+import 'providers/forum_provider.dart';
+import 'views/home_page.dart';
 
 void main() {
   runApp(const HuagongcnApp());
@@ -22,7 +22,7 @@ class HuagongcnApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF0F4C81), // 经典工程蓝
+            seedColor: const Color(0xFF0F4C81),
             primary: const Color(0xFF0F4C81),
             secondary: const Color(0xFF2B6CB0),
             surface: const Color(0xFFF7FAFC),
