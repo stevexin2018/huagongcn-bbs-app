@@ -1,0 +1,76 @@
+name: Build Windows and Android Releases
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Create Platform Skeletons
+        run: flutter create --platforms=android .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: huagongcn-bbs-android
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-windows:
+    name: Build Windows x64 App
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Enable Windows Desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Create Windows Skeletons
+        run: flutter create --platforms=windows .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows Application
+        run: flutter build windows --release
+
+      - name: Compress Windows Application
+        run: |
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath huagongcn-bbs-windows-x64.zip
+
+      - name: Upload Windows Zip
+        uses: actions/upload-artifact@v3
+        with:
+          name: huagongcn-bbs-windows-x64
+          path: huagongcn-bbs-windows-x64.zip
