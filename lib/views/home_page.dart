@@ -15,7 +15,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    // 采用自适应布局：宽屏（桌面端 Mac/Win/Linux）显示三栏/双栏，窄屏（手机端 Android/iOS）显示经典移动流
     final isDesktop = MediaQuery.of(context).size.width >= 900;
 
     return Scaffold(
@@ -60,9 +59,7 @@ class _HomePageState extends State<HomePage> {
       drawer: isDesktop ? null : _buildMobileDrawer(context),
       body: isDesktop ? _buildDesktopLayout(context) : _buildMobileLayout(context),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // 发起讨论
-        },
+        onPressed: () {},
         backgroundColor: const Color(0xFF0F4C81),
         foregroundColor: Colors.white,
         icon: const Icon(Icons.edit_note),
@@ -71,11 +68,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// 桌面端（Mac / Windows / Linux）宽屏自适应两栏/三栏布局
   Widget _buildDesktopLayout(BuildContext context) {
     return Row(
       children: [
-        // 左侧分类标签栏 (260px)
         Container(
           width: 260,
           decoration: const BoxDecoration(
@@ -84,7 +79,6 @@ class _HomePageState extends State<HomePage> {
           ),
           child: _buildTagList(context),
         ),
-        // 右侧讨论主题信息流
         Expanded(
           child: _buildDiscussionStream(context),
         ),
@@ -92,12 +86,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// 移动端（Android / iOS）经典单栏信息流布局
   Widget _buildMobileLayout(BuildContext context) {
     return _buildDiscussionStream(context);
   }
 
-  /// 左侧移动端抽屉
   Widget _buildMobileDrawer(BuildContext context) {
     return Drawer(
       child: Column(
@@ -130,7 +122,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// 版块与分类列表构建
   Widget _buildTagList(BuildContext context) {
     return Consumer<ForumProvider>(
       builder: (context, provider, child) {
@@ -196,7 +187,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// 讨论流列表展示
   Widget _buildDiscussionStream(BuildContext context) {
     return Consumer<ForumProvider>(
       builder: (context, provider, child) {
@@ -251,8 +241,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// 单个主题卡片
   Widget _buildDiscussionCard(BuildContext context, Discussion item) {
+    final displayName = item.userName ?? '匿名工程师';
+    final initialChar = displayName.isNotEmpty ? displayName[0] : '工';
+
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
@@ -269,24 +261,22 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 顶部标签与作者
               Row(
                 children: [
                   CircleAvatar(
                     radius: 14,
                     backgroundColor: const Color(0xFF0F4C81),
                     child: Text(
-                      item.userName.isNotEmpty ? item.userName[0] : '工',
+                      initialChar,
                       style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    item.userName,
+                    displayName,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
-                  // 标签显示
                   if (item.tagNames.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -302,7 +292,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(height: 10),
-              // 帖子标题
               Text(
                 item.title,
                 style: const TextStyle(
@@ -312,7 +301,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 8),
-              // 底部状态信息（评论数、最后活动时间）
               Row(
                 children: [
                   const Icon(Icons.chat_bubble_outline, size: 14, color: Colors.grey),

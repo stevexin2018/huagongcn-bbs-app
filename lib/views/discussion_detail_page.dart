@@ -39,7 +39,6 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
       for (final item in included) {
         if (item['type'] == 'posts') {
           final attr = item['attributes'] as Map<String, dynamic>? ?? {};
-          // 只保留正常主楼/评论回复
           if (attr['contentType'] == 'comment' || attr['contentHtml'] != null) {
             postList.add({
               'id': item['id'],
@@ -52,7 +51,6 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
         }
       }
 
-      // 按楼层升序排序
       postList.sort((a, b) => (a['number'] as int? ?? 0).compareTo(b['number'] as int? ?? 0));
 
       setState(() {
@@ -69,6 +67,8 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authorName = widget.discussion.userName ?? '匿名工程师';
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -104,7 +104,6 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 楼层头部信息
                         Row(
                           children: [
                             CircleAvatar(
@@ -120,12 +119,14 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  isFirst ? widget.discussion.userName : '工程师 #${floor}',
+                                  isFirst ? authorName : '工程师 #$floor',
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                 ),
                                 if (post['createdAt'] != null)
                                   Text(
-                                    post['createdAt'].toString().substring(0, 10),
+                                    post['createdAt'].toString().length >= 10
+                                        ? post['createdAt'].toString().substring(0, 10)
+                                        : post['createdAt'].toString(),
                                     style: const TextStyle(color: Colors.grey, fontSize: 11),
                                   ),
                               ],
@@ -145,7 +146,6 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // 楼层正文（工科 Markdown 渲染）
                         MarkdownBody(
                           data: _cleanHtmlToMarkdown(post['contentHtml'] ?? post['content'] ?? ''),
                           styleSheet: MarkdownStyleSheet(
@@ -199,7 +199,6 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
   }
 
   String _cleanHtmlToMarkdown(String html) {
-    // 简易将 Flarum HTML 转换为 Markdown 语法供 MarkdownBody 渲染
     String text = html;
     text = text.replaceAll(RegExp(r'<p>'), '\n');
     text = text.replaceAll(RegExp(r'</p>'), '\n');
