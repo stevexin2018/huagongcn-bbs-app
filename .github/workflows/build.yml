@@ -26,7 +26,7 @@ jobs:
           cache: true
 
       - name: Create Platform Skeletons
-        run: flutter create --platforms=android .
+        run: flutter create --project-name=huagongcn_bbs_app --platforms=android .
 
       - name: Install dependencies
         run: flutter pub get
@@ -57,7 +57,7 @@ jobs:
         run: flutter config --enable-windows-desktop
 
       - name: Create Windows Skeletons
-        run: flutter create --platforms=windows .
+        run: flutter create --project-name=huagongcn_bbs_app --platforms=windows .
 
       - name: Install dependencies
         run: flutter pub get
