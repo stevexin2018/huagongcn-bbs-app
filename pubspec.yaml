@@ -1,0 +1,33 @@
+name: huagongcn_bbs_app
+description: "Cross-platform mobile and desktop client for Chemical Machinery & Pressure Vessel Community (bbs.huagongcn.top)"
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Network & API
+  dio: ^5.4.0
+  # State Management
+  provider: ^6.1.1
+  # UI & Presentation
+  flutter_markdown: ^0.6.18+2
+  cached_network_image: ^3.3.1
+  flutter_spinkit: ^5.2.0
+  intl: ^0.19.0
+  url_launcher: ^6.2.4
+  shared_preferences: ^2.2.2
+  font_awesome_flutter: ^10.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
