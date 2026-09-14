@@ -5,6 +5,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-android:
     name: Build Android APK
@@ -34,7 +37,7 @@ jobs:
       - name: Build Android APK
         run: flutter build apk --release
 
-      - name: Upload Android APK
+      - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: huagongcn-bbs-android
@@ -42,9 +45,12 @@ jobs:
 
   build-windows:
     name: Build Windows x64 App
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Visual Studio Environment
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -67,10 +73,19 @@ jobs:
 
       - name: Compress Windows Application
         run: |
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath huagongcn-bbs-windows-x64.zip
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath huagongcn-bbs-windows-x64-release.zip
 
-      - name: Upload Windows Zip
+      - name: Upload Windows Zip Artifact
         uses: actions/upload-artifact@v4
         with:
           name: huagongcn-bbs-windows-x64
-          path: huagongcn-bbs-windows-x64.zip
+          path: huagongcn-bbs-windows-x64-release.zip
+
+      - name: Upload Windows Zip to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        with:
+          tag_name: v0.1.0-alpha
+          files: huagongcn-bbs-windows-x64-release.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
