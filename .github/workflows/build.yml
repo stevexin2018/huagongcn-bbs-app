@@ -1,4 +1,4 @@
-name: Build Windows and Android Releases
+name: Build Multi-Platform Releases (Android, Windows, Linux, macOS)
 
 on:
   push:
@@ -42,6 +42,15 @@ jobs:
         with:
           name: huagongcn-bbs-android
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload Android APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        with:
+          tag_name: v0.1.0-alpha
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows:
     name: Build Windows x64 App
@@ -87,5 +96,99 @@ jobs:
         with:
           tag_name: v0.1.0-alpha
           files: huagongcn-bbs-windows-x64-release.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    name: Build Linux x64 App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Enable Linux Desktop
+        run: flutter config --enable-linux-desktop
+
+      - name: Create Linux Skeletons
+        run: flutter create --project-name=huagongcn_bbs_app --platforms=linux .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Linux Application
+        run: flutter build linux --release
+
+      - name: Package Linux Application
+        run: |
+          tar -czvf huagongcn-bbs-linux-x64-release.tar.gz -C build/linux/x64/release/bundle .
+
+      - name: Upload Linux Tarball Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: huagongcn-bbs-linux-x64
+          path: huagongcn-bbs-linux-x64-release.tar.gz
+
+      - name: Upload Linux Tarball to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        with:
+          tag_name: v0.1.0-alpha
+          files: huagongcn-bbs-linux-x64-release.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-macos:
+    name: Build macOS Universal App
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Enable macOS Desktop
+        run: flutter config --enable-macos-desktop
+
+      - name: Create macOS Skeletons
+        run: flutter create --project-name=huagongcn_bbs_app --platforms=macos .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build macOS Application
+        run: flutter build macos --release
+
+      - name: Package macOS Application
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r -y ../../../../../huagongcn-bbs-macos-release.zip huagongcn_bbs_app.app
+
+      - name: Upload macOS Zip Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: huagongcn-bbs-macos
+          path: huagongcn-bbs-macos-release.zip
+
+      - name: Upload macOS Zip to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        with:
+          tag_name: v0.1.0-alpha
+          files: huagongcn-bbs-macos-release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
