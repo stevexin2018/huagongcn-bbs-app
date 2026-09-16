@@ -31,8 +31,28 @@ jobs:
       - name: Create Platform Skeletons
         run: flutter create --project-name=huagongcn_bbs_app --platforms=android .
 
+      - name: Enable Android network access
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          text = manifest.read_text(encoding="utf-8")
+          permissions = (
+              '    <uses-permission android:name="android.permission.INTERNET"/>\n'
+              '    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>\n\n'
+          )
+          if 'android.permission.INTERNET' not in text:
+              text = text.replace('<manifest ', '<manifest ', 1)
+              marker = '>\n'
+              pos = text.find(marker) + len(marker)
+              text = text[:pos] + permissions + text[pos:]
+              manifest.write_text(text, encoding="utf-8")
+          PY
+
       - name: Install dependencies
         run: flutter pub get
+
 
       - name: Build Android APK
         run: flutter build apk --release
