@@ -200,16 +200,43 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
 
   String _cleanHtmlToMarkdown(String html) {
     String text = html;
-    text = text.replaceAll(RegExp(r'<p>'), '\n');
-    text = text.replaceAll(RegExp(r'</p>'), '\n');
-    text = text.replaceAll(RegExp(r'<br\s*/?>'), '\n');
-    text = text.replaceAll(RegExp(r'<strong>(.*?)</strong>'), '**\$1**');
-    text = text.replaceAll(RegExp(r'<b>(.*?)</b>'), '**\$1**');
-    text = text.replaceAll(RegExp(r'<em>(.*?)</em>'), '*\$1*');
-    text = text.replaceAll(RegExp(r'<i>(.*?)</i>'), '*\$1*');
-    text = text.replaceAll(RegExp(r'<li>(.*?)</li>'), '- \$1\n');
-    text = text.replaceAll(RegExp(r'<a\s+href="([^"]+)">(.*?)</a>'), '[\$2](\$1)');
+
+    // Flarum API returns rendered HTML. Convert its common tags safely for
+    // flutter_markdown; replaceAllMapped keeps captured groups intact.
+    text = text.replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n');
+    text = text.replaceAll(RegExp(r'</?(ol|ul)[^>]*>', caseSensitive: false), '\n');
+    text = text.replaceAll(RegExp(r'<p[^>]*>', caseSensitive: false), '\n');
+    text = text.replaceAll(RegExp(r'</p>', caseSensitive: false), '\n');
+    text = text.replaceAll(RegExp(r'<h[1-6][^>]*>', caseSensitive: false), '\n## ');
+    text = text.replaceAll(RegExp(r'</h[1-6]>', caseSensitive: false), '\n');
+    text = text.replaceAllMapped(
+      RegExp(r'<(?:strong|b)[^>]*>([\s\S]*?)</(?:strong|b)>', caseSensitive: false),
+      (match) => '**${match.group(1) ?? ''}**',
+    );
+    text = text.replaceAllMapped(
+      RegExp(r'<(?:em|i)[^>]*>([\s\S]*?)</(?:em|i)>', caseSensitive: false),
+      (match) => '*${match.group(1) ?? ''}*',
+    );
+    text = text.replaceAllMapped(
+      RegExp(r'<li[^>]*>([\s\S]*?)</li>', caseSensitive: false),
+      (match) => '- ${match.group(1) ?? ''}\n',
+    );
+    text = text.replaceAllMapped(
+      RegExp(r'<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*>([\s\S]*?)</a>', caseSensitive: false),
+      (match) => '[${match.group(2) ?? ''}](${match.group(1) ?? ''})',
+    );
+
+    // Preserve readable engineering notation returned by the formatter.
+    text = text.replaceAll(RegExp(r'<sub[^>]*>([\s\S]*?)</sub>', caseSensitive: false), r'($1)');
+    text = text.replaceAll(RegExp(r'<sup[^>]*>([\s\S]*?)</sup>', caseSensitive: false), r'^$1');
     text = text.replaceAll(RegExp(r'<[^>]+>'), '');
-    return text.trim();
+    text = text
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'");
+    return text.replaceAll(RegExp(r'\n{3,}'), '\n\n').trim();
   }
 }
