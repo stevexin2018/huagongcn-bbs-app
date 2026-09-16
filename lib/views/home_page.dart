@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/forum_provider.dart';
+import '../providers/auth_provider.dart';
 import '../models/discussion.dart';
 import '../models/tag.dart';
 import 'discussion_detail_page.dart';
+import 'account_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,6 +43,15 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         actions: [
+          Consumer<AuthProvider>(
+            builder: (context, auth, _) => IconButton(
+              icon: Icon(auth.isLoggedIn ? Icons.account_circle : Icons.login),
+              tooltip: auth.isLoggedIn ? '我的账户' : '登录或注册',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AccountPage()),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: '刷新讨论',
@@ -58,12 +69,27 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: isDesktop ? null : _buildMobileDrawer(context),
       body: isDesktop ? _buildDesktopLayout(context) : _buildMobileLayout(context),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: const Color(0xFF0F4C81),
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.edit_note),
-        label: const Text('发起新讨论'),
+      floatingActionButton: Consumer<AuthProvider>(
+        builder: (context, auth, _) => FloatingActionButton.extended(
+          onPressed: () {
+            if (!auth.isLoggedIn) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('请先登录论坛账户后再发起讨论。')),
+              );
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AccountPage()),
+              );
+              return;
+            }
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('发帖编辑器将在下一版接入。')),
+            );
+          },
+          backgroundColor: const Color(0xFF0F4C81),
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.edit_note),
+          label: Text(auth.isLoggedIn ? '发起新讨论' : '登录后发帖'),
+        ),
       ),
     );
   }

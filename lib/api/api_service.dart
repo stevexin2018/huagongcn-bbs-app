@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../models/discussion.dart';
 import '../models/tag.dart';
@@ -11,87 +10,114 @@ class ApiService {
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 15),
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers: const {'Accept': 'application/json'},
     ),
   );
 
-  /// 获取讨论主题列表（支持分页和标签过滤）
-  Future<List<Discussion>> getDiscussions({int offset = 0, int limit = 20, String? tagSlug}) async {
-    try {
-      final Map<String, dynamic> query = {
-        'page[offset]': offset,
-        'page[limit]': limit,
-        'include': 'user,lastPostedUser,tags,firstPost',
-      };
-      if (tagSlug != null && tagSlug.isNotEmpty) {
-        query['filter[tag]'] = tagSlug;
-      }
-
-      final response = await _dio.get('discussions', queryParameters: query);
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-        final List<dynamic> included = data['included'] ?? [];
-        final List<dynamic> rawList = data['data'] ?? [];
-
-        return rawList.map((item) => Discussion.fromJsonApi(item, included)).toList();
-      }
-      return [];
-    } catch (e) {
-      // 抛出真实网络异常供界面展示与诊断
-      rethrow;
+  Future<List<Discussion>> getDiscussions({
+    int offset = 0,
+    int limit = 20,
+    String? tagSlug,
+  }) async {
+    final query = <String, dynamic>{
+      'page[offset]': offset,
+      'page[limit]': limit,
+      'include': 'user,lastPostedUser,tags,firstPost',
+    };
+    if (tagSlug != null && tagSlug.isNotEmpty) {
+      query['filter[tag]'] = tagSlug;
     }
+
+    final response = await _dio.get('discussions', queryParameters: query);
+    if (response.statusCode != 200) return [];
+    final data = response.data as Map<String, dynamic>;
+    final included = data['included'] as List<dynamic>? ?? [];
+    final rawList = data['data'] as List<dynamic>? ?? [];
+    return rawList
+        .whereType<Map<String, dynamic>>()
+        .map((item) => Discussion.fromJsonApi(item, included))
+        .toList();
   }
 
-  /// 获取讨论详情及楼层回复
   Future<Map<String, dynamic>?> getDiscussionDetail(String id) async {
     try {
       final response = await _dio.get(
         'discussions/$id',
-        queryParameters: {
-          'include': 'user,posts,posts.user,tags',
-        },
+        queryParameters: {'include': 'user,posts,posts.user,tags'},
       );
-      if (response.statusCode == 200) {
-        return response.data;
-      }
-      return null;
-    } catch (e) {
+      return response.statusCode == 200
+          ? response.data as Map<String, dynamic>
+          : null;
+    } catch (_) {
       return null;
     }
   }
 
-  /// 获取分类标签（版块）列表
   Future<List<Tag>> getTags() async {
     try {
       final response = await _dio.get('tags');
-      if (response.statusCode == 200) {
-        final List<dynamic> rawList = response.data['data'] ?? [];
-        return rawList.map((item) => Tag.fromJsonApi(item)).toList();
-      }
-      return [];
-    } catch (e) {
+      if (response.statusCode != 200) return [];
+      final data = response.data as Map<String, dynamic>;
+      final rawList = data['data'] as List<dynamic>? ?? [];
+      return rawList
+          .whereType<Map<String, dynamic>>()
+          .map(Tag.fromJsonApi)
+          .toList();
+    } catch (_) {
       return [];
     }
   }
 
-  /// 用户登录获取 Access Token
-  Future<String?> login(String identification, String password) async {
+  Future<Map<String, dynamic>?> login(
+    String identification,
+    String password,
+  ) async {
     try {
       final response = await _dio.post(
         'token',
+        data: {'identification': identification, 'password': password},
+      );
+      if (response.statusCode != 200 || response.data is! Map) return null;
+      final data = Map<String, dynamic>.from(response.data as Map);
+      return data['token'] == null || data['userId'] == null ? null : data;
+    } on DioException {
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserProfile(String id, String token) async {
+    final response = await _dio.get(
+      'users/$id',
+      queryParameters: {'include': 'groups'},
+      options: Options(headers: {'Authorization': 'Token $token; userId=$id'}),
+    );
+    final payload = response.data as Map<String, dynamic>;
+    return payload['data'] as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>?> register({
+    required String username,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await _dio.post(
+        'users',
         data: {
-          'identification': identification,
-          'password': password,
+          'data': {
+            'type': 'users',
+            'attributes': {
+              'username': username,
+              'email': email,
+              'password': password,
+            },
+          },
         },
       );
-      if (response.statusCode == 200 && response.data['token'] != null) {
-        return response.data['token'] as String;
-      }
-      return null;
-    } catch (e) {
+      if ((response.statusCode != 200 && response.statusCode != 201) || response.data is! Map) return null;
+      final data = Map<String, dynamic>.from(response.data as Map);
+      return data['data'] as Map<String, dynamic>?;
+    } on DioException {
       return null;
     }
   }

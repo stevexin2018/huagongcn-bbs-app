@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/forum_provider.dart';
+import 'providers/auth_provider.dart';
 import 'views/home_page.dart';
 
 void main() {
@@ -15,6 +16,7 @@ class HuagongcnApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ForumProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
         title: '化工机械研究论坛',
