@@ -167,6 +167,34 @@ jobs:
           files: huagongcn-bbs-linux-x64-release.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build-ios-check:
+    name: Verify iOS Build (No Code Signing)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.6'
+          channel: stable
+          cache: true
+
+      - name: Create iOS project files
+        run: flutter create --project-name=huagongcn_bbs_app --platforms=ios .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify iOS release build without signing
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload iOS app archive for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: huagongcn-bbs-ios-unsigned
+          path: build/ios/iphoneos/Runner.app
+          if-no-files-found: error
 
   build-macos:
     name: Build macOS Universal App
