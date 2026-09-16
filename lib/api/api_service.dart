@@ -4,7 +4,7 @@ import '../models/discussion.dart';
 import '../models/tag.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://bbs.huagongcn.top/api';
+  static const String baseUrl = 'https://bbs.huagongcn.top/api/';
 
   final Dio _dio = Dio(
     BaseOptions(
@@ -29,7 +29,7 @@ class ApiService {
         query['filter[tag]'] = tagSlug;
       }
 
-      final response = await _dio.get('/discussions', queryParameters: query);
+      final response = await _dio.get('discussions', queryParameters: query);
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -49,7 +49,7 @@ class ApiService {
   Future<Map<String, dynamic>?> getDiscussionDetail(String id) async {
     try {
       final response = await _dio.get(
-        '/discussions/$id',
+        'discussions/$id',
         queryParameters: {
           'include': 'user,posts,posts.user,tags',
         },
@@ -66,7 +66,7 @@ class ApiService {
   /// 获取分类标签（版块）列表
   Future<List<Tag>> getTags() async {
     try {
-      final response = await _dio.get('/tags');
+      final response = await _dio.get('tags');
       if (response.statusCode == 200) {
         final List<dynamic> rawList = response.data['data'] ?? [];
         return rawList.map((item) => Tag.fromJsonApi(item)).toList();
@@ -81,7 +81,7 @@ class ApiService {
   Future<String?> login(String identification, String password) async {
     try {
       final response = await _dio.post(
-        '/token',
+        'token',
         data: {
           'identification': identification,
           'password': password,
