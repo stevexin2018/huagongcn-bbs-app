@@ -48,7 +48,7 @@ class ForumProvider extends ChangeNotifier {
         tagSlug: _selectedTagSlug,
       );
     } catch (e) {
-      _errorMessage = '获取帖子列表失败，请检查网络连接';
+      _errorMessage = '加载失败: $e';
     } finally {
       _isLoading = false;
       notifyListeners();

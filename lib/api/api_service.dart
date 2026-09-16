@@ -40,8 +40,8 @@ class ApiService {
       }
       return [];
     } catch (e) {
-      // 离线/网络异常时可优雅降级
-      return [];
+      // 抛出真实网络异常供界面展示与诊断
+      rethrow;
     }
   }
 
