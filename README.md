@@ -14,10 +14,10 @@
 
 | 平台类别 | 操作系统与架构 | 安装包下载 | 运行说明 |
 | :--- | :--- | :--- | :--- |
-| **Android** | Android 5.0+ (Universal ARM/x86) | [📥 app-release.apk (21.0 MB)](https://github.com/stevexin2018/huagongcn-bbs-app/releases/download/v0.2.0-beta/app-release.apk) | 支持各类安卓手机与工控平板 |
-| **Windows** | Windows 10 / 11 (x64) | [📥 huagongcn-bbs-windows-x64-release.zip (11.5 MB)](https://github.com/stevexin2018/huagongcn-bbs-app/releases/download/v0.2.0-beta/huagongcn-bbs-windows-x64-release.zip) | 解压即用绿色版，双击 exe 直接运行 |
-| **macOS** | macOS 11.0+ (Apple Silicon M系列 / Intel) | [📥 huagongcn-bbs-macos-release.zip (19.9 MB)](https://github.com/stevexin2018/huagongcn-bbs-app/releases/download/v0.2.0-beta/huagongcn-bbs-macos-release.zip) | 解压拖入 Applications 目录即可 |
-| **Linux** | Ubuntu / Debian / CentOS / Arch (x64) | [📥 huagongcn-bbs-linux-x64-release.tar.gz (9.4 MB)](https://github.com/stevexin2018/huagongcn-bbs-app/releases/download/v0.2.0-beta/huagongcn-bbs-linux-x64-release.tar.gz) | 解压后直接运行可执行二进制文件 |
+| **Android** | Android 5.0+ (Universal ARM/x86) | [📥 huagongcn-bbs-v0.2.0-beta-android.apk (21.0 MB)](https://github.com/stevexin2018/huagongcn-bbs-app/releases/download/v0.2.0-beta/huagongcn-bbs-v0.2.0-beta-android.apk) | 支持各类安卓手机与工控平板 |
+| **Windows** | Windows 10 / 11 (x64) | [📥 huagongcn-bbs-v0.2.0-beta-windows-x64.zip (11.5 MB)](https://github.com/stevexin2018/huagongcn-bbs-app/releases/download/v0.2.0-beta/huagongcn-bbs-v0.2.0-beta-windows-x64.zip) | 解压即用绿色版，双击 exe 直接运行 |
+| **macOS** | macOS 11.0+ (Apple Silicon M系列 / Intel) | [📥 huagongcn-bbs-v0.2.0-beta-macos-universal.zip (19.9 MB)](https://github.com/stevexin2018/huagongcn-bbs-app/releases/download/v0.2.0-beta/huagongcn-bbs-v0.2.0-beta-macos-universal.zip) | 解压拖入 Applications 目录即可 |
+| **Linux** | Ubuntu / Debian / CentOS / Arch (x64) | [📥 huagongcn-bbs-v0.2.0-beta-linux-x64.tar.gz (9.4 MB)](https://github.com/stevexin2018/huagongcn-bbs-app/releases/download/v0.2.0-beta/huagongcn-bbs-v0.2.0-beta-linux-x64.tar.gz) | 解压后直接运行可执行二进制文件 |
 
 ---
 
