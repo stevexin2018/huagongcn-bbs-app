@@ -222,7 +222,7 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
       (match) => '- ${match.group(1) ?? ''}\n',
     );
     text = text.replaceAllMapped(
-      RegExp(r'<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*>([\s\S]*?)</a>', caseSensitive: false),
+      RegExp(r'''<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)</a>''', caseSensitive: false),
       (match) => '[${match.group(2) ?? ''}](${match.group(1) ?? ''})',
     );
 
